@@ -2,6 +2,7 @@
 from array import array
 from collections import deque
 from sys import maxsize
+import termtables
 
 # these sizes are in Byte
 BLOCK_SIZE = 1
@@ -15,6 +16,19 @@ if not hexa:
     requests = list(map(int, inputs))
 else: 
     requests = list(map(lambda x:int(x, base=16), inputs))
+# BLOCK_SIZE = int(input("Size of Block: "))
+# CACHE_SIZE = int(input("Size of Cache: "))
+# MEMORY_SIZE = int(input("Size of Memory: "))
+
+
+def draw_table(cache: list(deque()), block_num: int, k:int) -> None:
+    header = ['#'] + [f"way {i}" for i in range(k)]
+    data = [[f'set {i}'] + ["    " for _ in range(k)] for i in range(block_num)]
+    for i in range(len(cache)):
+        for j in range(len(cache[i])):
+            data[i][j+1] = cache[i][j]
+    print(85*'-')
+    termtables.print(data, header=header)
 
 
 def direct_mapping(requests: list, hexa=False) -> list:
@@ -71,7 +85,9 @@ def k_way_set_associative(k: int, requests: list, policy: str, hexa=False) -> li
                 result.append(0)
                 kwsa[cache_index[i]].append(requests[i])
 
-            print('cache:', kwsa, 'request:', requests[i])
+            print('request:', requests[i])
+            print('Hit' if result[i] == 1 else 'Miss')
+            draw_table(kwsa, block_num, k)
 
     elif policy.upper() == 'LRU':
         for i in range(len(requests)):
@@ -81,7 +97,9 @@ def k_way_set_associative(k: int, requests: list, policy: str, hexa=False) -> li
                 result.append(0)
             kwsa[cache_index[i]].append(requests[i])
 
-            print('cache:', kwsa, 'request:', requests[i])
+            print('request:', requests[i])
+            print('Hit' if result[i] == 1 else 'Miss')
+            draw_table(kwsa, block_num, k)
 
     else:
         print("[Warning]: your entered policy is not in accepted policies.\nvalid policies: ['FIFO', 'LRU']")

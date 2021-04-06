@@ -2,14 +2,22 @@ package main
 
 import "fmt"
 
+const cacheSize = 2048
+const blockSize = 512
+const wordSize = 256
+const k = 2
+const policy = "lru"
+
 func main() {
-	kWay("lru",1, 4, 4)
-	kWay("fifo",1, 4, 4)
-}
-func kWay(policy string, k, sets, wordsInBlock int) {
+	var sets, wordsInBlock int
+	wordsInBlock = blockSize / wordSize
+	sets = (cacheSize / blockSize) / k
 	// asked addresses
-	addresses := []int{0X5, 0XC, 0XD, 0X11, 0X4, 0XC, 0XD, 0X11, 0X2, 0XD, 0X13, 0X2B, 0X3D, 0X13}
+	addresses := []int{0x5, 0xC, 0xD, 0x11, 0x4, 0xC, 0xD, 0x11, 0x2, 0xD, 0x13, 0x2B, 0x3D, 0x13}
 	//addresses := []int{5, 12, 13, 17, 4, 12, 13, 17, 2, 13, 19, 13, 43, 61, 19}
+	kWay(addresses, policy, k, sets, wordsInBlock)
+}
+func kWay(addresses []int, policy string, k, sets, wordsInBlock int) {
 	cache := makeCache(k, sets)
 	var hits, misses int
 	for _, v := range addresses {

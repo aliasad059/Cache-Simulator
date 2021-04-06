@@ -1,6 +1,8 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+)
 
 const cacheSize = 2048
 const blockSize = 512
@@ -21,7 +23,7 @@ func kWay(addresses []int, policy string, k, sets, wordsInBlock int) {
 	cache := makeCache(k, sets)
 	var hits, misses int
 	for _, v := range addresses {
-		fmt.Println(cache)
+		var result string
 		v /= wordsInBlock
 		Bx := v % sets
 		hit := false
@@ -33,6 +35,7 @@ func kWay(addresses []int, policy string, k, sets, wordsInBlock int) {
 			}
 		}
 		if hit {
+			result = "Hit"
 			hits++
 			if policy == "lru" {
 				cache[Bx] = moveToHead(cache[Bx], i)
@@ -40,6 +43,7 @@ func kWay(addresses []int, policy string, k, sets, wordsInBlock int) {
 				//do nothing
 			}
 		} else {
+			result = "Miss"
 			misses++
 			if policy == "lru" {
 				cache[Bx] = insertAtHead(cache[Bx], v)[:k]
@@ -47,9 +51,13 @@ func kWay(addresses []int, policy string, k, sets, wordsInBlock int) {
 				cache[Bx] = append(cache[Bx], v)[0:]
 			}
 		}
+		fmt.Println("\n################################################################")
+		fmt.Printf("Requested Address: %d\n", v)
+		fmt.Printf("Result: " + result)
+		printCache(cache, sets, wordsInBlock)
 	}
-	fmt.Println(cache)
-	fmt.Print(float32(hits) / float32(misses+hits))
+	fmt.Println("\n################################################################")
+	fmt.Printf("Hit-Rate: %f", float32(hits)/float32(misses+hits)*100)
 }
 func makeCache(k, sets int) (cache [][]int) {
 	cache = make([][]int, sets)
@@ -70,4 +78,25 @@ func moveToHead(a []int, i int) []int {
 	v := a[i]
 	a = append(a[:i], a[i+1:]...)
 	return insertAtHead(a, v)
+}
+func printCache(cache [][]int, sets, wordsInBlock int) {
+	for m := 0; m < sets; m++ {
+		fmt.Printf("\n\t++++++++++++++++++++++++++++++++")
+		fmt.Printf("\n\tSet: %d\n", m)
+		for n := 0; n < k; n++ {
+			fmt.Printf("\t\t----------------\n")
+			fmt.Printf("\t\tBlock: %d\n", n)
+			for o := 0; o < wordsInBlock; o++ {
+				if cache[m][n] == -1 {
+					fmt.Printf("\t\t\tW%d: -\n", o)
+				} else {
+					fmt.Printf("\t\t\tW%d: %d\n", o, cache[m][n]*wordsInBlock+o)
+				}
+			}
+		}
+		fmt.Printf("\t\t----------------\n")
+
+	}
+	fmt.Printf("\n\t++++++++++++++++++++++++++++++++\n")
+
 }

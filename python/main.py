@@ -63,7 +63,7 @@ def k_way_set_associative(k: int, requests: list, policy: str, hexa=False) -> li
     cache_index = [request % block_num for request in requests]
     result = []
     
-    if policy.upper == 'FIFO':
+    if policy.upper() == 'FIFO':
         for i in range(len(requests)):
             if requests[i] in kwsa[cache_index[i]]:
                 result.append(1)
@@ -73,7 +73,7 @@ def k_way_set_associative(k: int, requests: list, policy: str, hexa=False) -> li
 
             print('cache:', kwsa, 'request:', requests[i])
 
-    elif policy.upper == 'LRU':
+    elif policy.upper() == 'LRU':
         for i in range(len(requests)):
             if requests[i] in kwsa[cache_index[i]]:
                 result.append(1)

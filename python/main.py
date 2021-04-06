@@ -84,7 +84,8 @@ def k_way_set_associative(k: int, requests: list, policy: str, hexa=False) -> li
             print('cache:', kwsa, 'request:', requests[i])
 
     else:
-        print("Warning: your entered policy is not in accepted policies.\n valid policies: ['FIFO', 'LRU']")
+        print("[Warning]: your entered policy is not in accepted policies.\nvalid policies: ['FIFO', 'LRU']")
+        return
 
     hit_rate = sum(result)/len(result)
     if hexa:

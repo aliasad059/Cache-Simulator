@@ -132,4 +132,8 @@ def k_way_set_associative(k: int, requests: list, policy: str, hexa=False) -> li
     return list(zip(requests, result)), hit_rate
 
 # print(direct_mapping(requests, hexa))
-print(k_way_set_associative(4, requests, 'LRU'))
+k = int(input("Enter k: "))
+print('\nvalid policies:\n(1) LRU\n(2) FIFO\n')
+policy_n = int(input("Enter Policy number: "))
+policy = 'LRU' if policy_n == 1 else 'FIFO'
+print(k_way_set_associative(k, requests, policy))

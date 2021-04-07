@@ -2,6 +2,9 @@ package main
 
 import (
 	"fmt"
+	"github.com/jedib0t/go-pretty/v6/table"
+	"os"
+	"strconv"
 )
 
 const cacheSize = 2048
@@ -51,13 +54,12 @@ func kWay(addresses []int, policy string, k, sets, wordsInBlock int) {
 				cache[Bx] = append(cache[Bx], v)[0:]
 			}
 		}
-		fmt.Println("\n################################################################")
-		fmt.Printf("Requested Address: %d\n", v)
-		fmt.Printf("Result: " + result)
-		printCache(cache, sets, wordsInBlock)
+		printCache(cache, v, sets, wordsInBlock)
+		fmt.Printf("request: %d\n", v*wordsInBlock)
+		fmt.Println(result)
 	}
-	fmt.Println("\n################################################################")
-	fmt.Printf("Hit-Rate: %f", float32(hits)/float32(misses+hits)*100)
+	fmt.Println("------------------------------------------------------")
+	fmt.Printf("Hit Rate: %f", float32(hits)/float32(misses+hits)*100)
 }
 func makeCache(k, sets int) (cache [][]int) {
 	cache = make([][]int, sets)
@@ -79,24 +81,61 @@ func moveToHead(a []int, i int) []int {
 	a = append(a[:i], a[i+1:]...)
 	return insertAtHead(a, v)
 }
-func printCache(cache [][]int, sets, wordsInBlock int) {
-	for m := 0; m < sets; m++ {
-		fmt.Printf("\n\t++++++++++++++++++++++++++++++++")
-		fmt.Printf("\n\tSet: %d\n", m)
-		for n := 0; n < k; n++ {
-			fmt.Printf("\t\t----------------\n")
-			fmt.Printf("\t\tBlock: %d\n", n)
-			for o := 0; o < wordsInBlock; o++ {
-				if cache[m][n] == -1 {
-					fmt.Printf("\t\t\tW%d: -\n", o)
-				} else {
-					fmt.Printf("\t\t\tW%d: %d\n", o, cache[m][n]*wordsInBlock+o)
-				}
-			}
-		}
-		fmt.Printf("\t\t----------------\n")
 
+//func printCache(cache [][]int, sets, wordsInBlock int) {
+//	for m := 0; m < sets; m++ {
+//		fmt.Printf("\n\t++++++++++++++++++++++++++++++++")
+//		fmt.Printf("\n\tSet: %d\n", m)
+//		for n := 0; n < k; n++ {
+//			fmt.Printf("\t\t----------------\n")
+//			fmt.Printf("\t\tBlock: %d\n", n)
+//			for o := 0; o < wordsInBlock; o++ {
+//				if cache[m][n] == -1 {
+//					fmt.Printf("\t\t\tW%d: -\n", o)
+//				} else {
+//					fmt.Printf("\t\t\tW%d: %d\n", o, cache[m][n]*wordsInBlock+o)
+//				}
+//			}
+//		}
+//		fmt.Printf("\t\t----------------\n")
+//
+//	}
+//	fmt.Printf("\n\t++++++++++++++++++++++++++++++++\n")
+//
+//}
+func printCache(cache [][]int, address, sets, wordsInBlock int) {
+	fmt.Println("------------------------------------------------------")
+	t := table.NewWriter()
+	//a := []string {"a","b"}
+	t.SetStyle(table.StyleBold)
+	t.SetOutputMirror(os.Stdout)
+	header := make(table.Row, 0)
+	header = append(header, "#")
+	for i := 0; i < k; i++ {
+		header = append(header, "way "+strconv.Itoa(i))
 	}
-	fmt.Printf("\n\t++++++++++++++++++++++++++++++++\n")
+	t.AppendHeader(header)
+	for m := 0; m < sets; m++ {
+		row := make(table.Row, 0)
+		row = append(row, "Set "+strconv.Itoa(m))
+		for n := 0; n < k; n++ {
+			str := ""
+			if cache[m][n] != -1 {
+				str += "<" + strconv.Itoa(cache[m][n]) + "> ["
+				for o := 0; o < wordsInBlock; o++ {
+					if o != 0 {
+						str += ", "
+					}
+					str += strconv.Itoa(cache[m][n]*wordsInBlock + o)
+				}
+				str += "] "
+			}
+			row = append(row, str)
+		}
 
+		t.AppendRow(row)
+		t.AppendSeparator()
+	}
+
+	t.Render()
 }

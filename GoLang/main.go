@@ -5,15 +5,15 @@ import (
 	"github.com/jedib0t/go-pretty/v6/table"
 	"os"
 	"strconv"
+	"strings"
 )
 
-const cacheSize = 1024
-const blockSize = 256
-const wordSize = 256
-const k = 4
-const policy = "fifo" // fifo or lru
-
 func main() {
+	var cacheSize, blockSize, wordSize, k int
+	var policy string
+
+	initCache(&cacheSize, &blockSize, &wordSize, &k, &policy)
+
 	wordsInBlock := blockSize / wordSize
 	sets := (cacheSize / blockSize) / k
 
@@ -22,7 +22,6 @@ func main() {
 
 	// asked addresses in decimal
 	//addresses := []int{5, 12, 13, 17, 4, 12, 13, 17, 2, 13, 19, 13, 43, 61, 19}
-
 	kWay(addresses, policy, k, sets, wordsInBlock)
 }
 
@@ -33,7 +32,7 @@ func main() {
 // wordsInBlock : number of words in each block of cache
 func kWay(addresses []int, policy string, k, sets, wordsInBlock int) {
 	cache := makeCache(k, sets)
-	printCache(cache, sets, wordsInBlock)
+	printCache(cache, sets, wordsInBlock, k)
 	var hits, misses int
 	for _, v := range addresses {
 		var result string
@@ -64,7 +63,7 @@ func kWay(addresses []int, policy string, k, sets, wordsInBlock int) {
 				cache[Bx] = append(cache[Bx], v)[1:]
 			}
 		}
-		printCache(cache, sets, wordsInBlock)
+		printCache(cache, sets, wordsInBlock, k)
 		fmt.Printf("request: %d\n", v*wordsInBlock)
 		fmt.Println(result)
 	}
@@ -99,7 +98,7 @@ func moveToHead(a []int, i int) []int {
 }
 
 // prints cache using go-pretty package
-func printCache(cache [][]int, sets, wordsInBlock int) {
+func printCache(cache [][]int, sets, wordsInBlock, k int) {
 	fmt.Println("------------------------------------------------------")
 	t := table.NewWriter()
 	t.SetStyle(table.StyleBold)
@@ -134,4 +133,30 @@ func printCache(cache [][]int, sets, wordsInBlock int) {
 	}
 
 	t.Render()
+}
+
+// scans and initials variables
+func initCache(cacheSize, blockSize, wordSize, k *int, policy *string) {
+	fmt.Print("Size of Cache: ")
+	_, _ = fmt.Scan(cacheSize)
+	fmt.Print("Size of Block: ")
+	_, _ = fmt.Scan(blockSize)
+	fmt.Print("Size of Word: ")
+	_, _ = fmt.Scan(wordSize)
+	fmt.Print("K Value: ")
+	_, _ = fmt.Scan(k)
+
+	for true {
+		fmt.Print("Policy:\n   (1) LRU\n   (2) FIFO \nEnter Number or the Word: ")
+		var p string
+		_, _ = fmt.Scan(&p)
+		if strings.ToLower(p) == "lru" || strings.ToLower(p) == "1" {
+			*policy = "lru"
+			break
+		} else if strings.ToLower(p) == "fifo" || strings.ToLower(p) == "2" {
+			*policy = "fifo"
+			break
+		}
+		fmt.Println("\nInvalid!\nTry again.")
+	}
 }

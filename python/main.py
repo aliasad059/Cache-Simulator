@@ -38,7 +38,7 @@ def draw_table(cache: list(deque()), block_num: int, k:int) -> None:
     for i in range(len(cache)):
         for j in range(len(cache[i])):
             block_num = cache[i][j]
-            word_list = [2 * block_num + k for k in range(BLOCK_SIZE)]
+            word_list = [BLOCK_SIZE * block_num + k for k in range(BLOCK_SIZE)]
             data[i][j+1] = f"<{block_num}> {word_list}"
 
     print(85*'-')

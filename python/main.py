@@ -16,9 +16,9 @@ if not hexa:
     requests = list(map(int, inputs))
 else: 
     requests = list(map(lambda x:int(x, base=16), inputs))
-BLOCK_SIZE = int(input("Size of Block: "))
-CACHE_SIZE = int(input("Size of Cache: "))
-MEMORY_SIZE = int(input("Size of Memory: "))
+BLOCK_SIZE = int(input("Size of Block (words no.): "))
+CACHE_SIZE = int(input("Size of Cache (words no.): "))
+MEMORY_SIZE = int(input("Size of Memory (words no.): "))
 
 
 def draw_table(cache: list(deque()), block_num: int, k:int) -> None:
@@ -91,6 +91,9 @@ def k_way_set_associative(k: int, requests: list, policy: str, hexa=False) -> li
     """
     
     block_num = (CACHE_SIZE // BLOCK_SIZE) // k;
+    if block_num == 0:
+        print("[Error] your entered properties isn't correct.\nCause:  block_num == 0 ")
+        return []
     kwsa = [deque(maxlen=k) for _ in range(block_num)]
     requests_block = [request // BLOCK_SIZE for request in requests]
     cache_index = [request % block_num for request in requests_block]
@@ -131,9 +134,12 @@ def k_way_set_associative(k: int, requests: list, policy: str, hexa=False) -> li
         return list(zip(requests_hex, result)), hit_rate
     return list(zip(requests, result)), hit_rate
 
-# print(direct_mapping(requests, hexa))
-k = int(input("Enter k: "))
-print('\nvalid policies:\n(1) LRU\n(2) FIFO\n')
-policy_n = int(input("Enter Policy number: "))
-policy = 'LRU' if policy_n == 1 else 'FIFO'
-print(k_way_set_associative(k, requests, policy))
+if __name__ == "__main__":
+    # print(direct_mapping(requests, hexa))
+    k = int(input("Enter k: "))
+    print('\nvalid policies:\n(1) LRU\n(2) FIFO\n')
+    policy_n = int(input("Enter Policy number: "))
+    policy = 'LRU' if policy_n == 1 else 'FIFO'
+    result = k_way_set_associative(k, requests, policy)
+    if result:
+        print(result)
